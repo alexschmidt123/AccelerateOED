@@ -118,24 +118,26 @@ def main():
     if not os.path.exists('../Experiment/' + args.name):
         os.makedirs('../Experiment/' + args.name)
     train_loader, test_loader, [std, mean] = loadData(args.test_only, args.data_path, args.pretrain, args.name)
-
     print('Making Model...')
     with torch.backends.cudnn.flags(enabled=False):
+        model = Net().cuda()  # Create model FIRST
+    
         if args.pretrain != '.':
             if args.multiple_model:
                 model_paths = args.pretrain.split('+')
                 models = []
                 for model_path in model_paths:
-                    model = Net().cuda()
-                    model.load_state_dict(torch.load('../Experiment/' + model_path + '/model.pth'))
-                    models.append(model)
+                    m = Net().cuda()
+                    m.load_state_dict(torch.load('../Experiment/' + model_path + '/model.pth'))
+                    models.append(m)
             else:
-                model = Net().cuda()
+                # Load pretrained weights into the model
                 model.load_state_dict(torch.load('../Experiment/' + args.pretrain + '/model.pth'))
 
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
-                                                               factor=0.7, patience=5, min_lr=0.00001)
+                                                            factor=0.7, patience=5, min_lr=0.00001)
+
         test_MSE = np.zeros(EPOCH)
         train_MSE = np.zeros(EPOCH)
         train_rank = np.zeros(EPOCH)

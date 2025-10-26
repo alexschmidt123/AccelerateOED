@@ -5,7 +5,7 @@ import pycuda.driver as drv
 import pandas as pd
 import torch
 import numpy as np
-
+#define N_global 6
 from pycuda.compiler import SourceModule
 
 mod = SourceModule("""
@@ -302,7 +302,7 @@ class Holder(pycuda.driver.PointerHolderBase):
 def MOCU(K_max, w, N, h , M, T, aLowerBoundIn, aUpperBoundIn, seed):
     # seed = 0
     blocks = 128
-    block_size = np.int(K_max/blocks)
+    block_size = int(K_max/blocks)
 
     w = np.append(w, np.mean(w))
 
@@ -330,7 +330,7 @@ def MOCU(K_max, w, N, h , M, T, aLowerBoundIn, aUpperBoundIn, seed):
 
 
     if min(a_save) == 0:
-    	print("Non sync case exists")
+        print("Non sync case exists")
     
     if K_max >= 1000:
         temp = np.sort(a_save)

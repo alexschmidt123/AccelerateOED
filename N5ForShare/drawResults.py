@@ -60,25 +60,39 @@ plt.xlabel('Number of updates')
 plt.ylabel('MOCU')
 # plt.title('Experimental design for N=5 oscillators')
 plt.grid(True)
-plt.savefig(resultFolder + "MOCU_5.eps")
+plt.savefig(resultFolder + "MOCU_5.png", dpi=300)
 
-x_ax = np.arange(0, update_cnt+1, 1)
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
-plt.plot(x_ax, np.insert(np.cumsum(iNNT), 0, 0.0000000001), 'r*:', x_ax, np.insert(np.cumsum(NNT), 0, 0.0000000001), 'rs--', x_ax, np.insert(np.cumsum(ODET), 0, 0.0000000001), 'yo--')
-plt.legend(['Proposed (iterative)', 'Proposed', 'ODE'])
-# plt.plot(x_ax, np.insert(np.cumsum(iNNT), 0, 0.0000000001), 'r*:', x_ax, np.insert(np.cumsum(NNT), 0, 0.0000000001), 'rs--', x_ax, np.insert(np.cumsum(ODET), 0, 0.0000000001), 'yo--', x_ax, np.insert(np.cumsum(ENTT), 0, 0.0000000001), 'gd:', x_ax, np.insert(np.cumsum(RNDT), 0, 0.0000000001), 'b,:')
-# plt.legend(['Proposed (iterative)', 'Proposed', 'ODE', 'Entropy', 'Random'])
-# plt.plot(x_ax, iNNT, 'r*:', x_ax, NNT, 'rs--', x_ax, iODET, 'yp:', x_ax, ODET, 'yo--', x_ax, ENTT, 'gd:', x_ax, RNDT, 'b,:')
-# plt.legend(['NN-based MOCU (iterative)', 'NN-based MOCU', 'ODE-based MOCU (iterative)', 'ODE-based MOCU', 'Entropy-based', 'Random'])
-plt.yscale('log')
-plt.xlabel('Number of updates')
-plt.ylabel('Cumulative time complexity (in seconds)')
-plt.xticks(np.arange(0, update_cnt+1,1)) 
-# plt.ylim(0.000001, 10000)
-plt.ylim(1, 10000)
-# plt.title('Time complexityExperimental design for N=5 oscillators')
-plt.grid(True)
-fig.savefig(resultFolder + 'timeComplexity_5.eps')
+# Create side-by-side subplots
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+# Left plot: All methods (log scale)
+ax1.plot(x_ax, np.insert(np.cumsum(iNNT), 0, 0.0000000001), 'r*:', 
+         x_ax, np.insert(np.cumsum(NNT), 0, 0.0000000001), 'rs--', 
+         x_ax, np.insert(np.cumsum(ODET), 0, 0.0000000001), 'yo--', 
+         x_ax, np.insert(np.cumsum(ENTT), 0, 0.0000000001), 'gd:', 
+         x_ax, np.insert(np.cumsum(RNDT), 0, 0.0000000001), 'b,:')
+ax1.legend(['Proposed (iterative)', 'Proposed', 'ODE', 'Entropy', 'Random'])
+ax1.set_yscale('log')
+ax1.set_xlabel('Number of updates')
+ax1.set_ylabel('Cumulative time (seconds, log scale)')
+ax1.set_xticks(np.arange(0, update_cnt+1, 1))
+ax1.set_ylim(1, 10000)
+ax1.set_title('All methods comparison')
+ax1.grid(True)
+
+# Right plot: Neural network methods only (linear scale)
+ax2.plot(x_ax, np.insert(np.cumsum(iNNT), 0, 0.0), 'r*:', 
+         x_ax, np.insert(np.cumsum(NNT), 0, 0.0), 'rs--',
+         x_ax, np.insert(np.cumsum(ENTT), 0, 0.0), 'gd:', 
+         x_ax, np.insert(np.cumsum(RNDT), 0, 0.0), 'b,:')
+ax2.legend(['Proposed (iterative)', 'Proposed', 'Entropy', 'Random'])
+ax2.set_xlabel('Number of updates')
+ax2.set_ylabel('Cumulative time (seconds, linear scale)')
+ax2.set_xticks(np.arange(0, update_cnt+1, 1))
+ax2.set_title('Fast methods detail')
+ax2.grid(True)
+
+plt.tight_layout()
+fig.savefig(resultFolder + 'timeComplexity_5.png', dpi=300)
 plt.close(fig)
 

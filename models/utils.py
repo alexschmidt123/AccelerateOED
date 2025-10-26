@@ -28,21 +28,18 @@ def plotCurves(train_MSE, train_rank, test_MSE, EPOCH, name):
     plt.legend()
     plt.savefig('../Experiment/' + name + '/curve2.png')
 
-
 def savePrediction(data, prediction, std, mean, name):
     result = np.zeros([len(data.y), 2])
     prediction = prediction * std + mean
     prediction = prediction.cpu().detach().numpy()
     result[:, 0] = prediction[0:len(data.y), 0]  # pre
-    result[:, 1] = np.asarray([d * std + mean for d in data.y.cpu()])
+    result[:, 1] = np.asarray([d * std + mean for d in data.y.cpu()]).flatten()
 
-    data = pd.DataFrame(result)
+    df = pd.DataFrame(result)
 
-    writer = pd.ExcelWriter('../Experiment/' + name + '/Prediction.xlsx')  # 写入Excel文件
-    data.to_excel(writer, 'page_1', float_format='%.9f')  # ‘page_1’是写入excel的sheet名
-    writer.save()
-
-    writer.close()
+    # Fix for newer pandas versions
+    with pd.ExcelWriter('../Experiment/' + name + '/Prediction.xlsx', engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='page_1', float_format='%.9f')
 
 
 def printInstance(data, prediction, std, mean):
