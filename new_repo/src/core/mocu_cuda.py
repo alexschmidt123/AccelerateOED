@@ -1,3 +1,10 @@
+"""
+CUDA-accelerated MOCU computation
+
+This module is part of the MOCU-OED project for optimal experimental design
+in coupled oscillator systems.
+"""
+
 import time
 import pycuda.autoinit
 
