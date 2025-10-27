@@ -159,7 +159,7 @@ echo ""
 echo -e "${GREEN}[Step 5/4]${NC} Generating visualizations..."
 
 cd scripts
-python visualization.py
+python visualization.py --N $N --update_cnt 10 --result_folder ../results/
 cd ..
 
 echo -e "${GREEN}✓${NC} Plots generated: results/MOCU_${N}.png, results/timeComplexity_${N}.png"
