@@ -41,8 +41,8 @@ if __name__ == '__main__':
     w[3] = 2.0000
     w[4] = 5.8333
 
-    # listMethods = ['iMP', 'MP', 'iODE', 'ODE', 'RANDOM', 'ENTROPY']
-    listMethods = ['iMP', 'MP', 'ODE', 'RANDOM', 'ENTROPY']
+    # Only use implemented strategies (ODE requires missing mocu_strategy.py)
+    listMethods = ['iMP', 'MP', 'ENTROPY', 'RANDOM']
     numberOfSimulationsPerMethod = 10
     numberOfVaildSimulations = 0
     numberOfSimulations = 0
