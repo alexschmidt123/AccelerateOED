@@ -128,16 +128,14 @@ cd ..
 
 echo -e "${GREEN}✓${NC} Model trained: models/$MODEL_NAME/model.pth"
 
-# Step 3: Configure model path in strategy
+# Step 3: Set model name as environment variable
 echo ""
 echo -e "${GREEN}[Step 3/4]${NC} Configuring model path..."
 
-STRATEGY_FILE="src/strategies/mp_strategy.py"
-# Replace any model path with the current model name (works on re-runs too)
-sed -i.bak "s|torch\.load('../models/[^/']*/model\.pth')|torch.load('../models/$MODEL_NAME/model.pth')|g" $STRATEGY_FILE
-sed -i.bak "s|torch\.load('../models/[^/']*/statistics\.pth')|torch.load('../models/$MODEL_NAME/statistics.pth')|g" $STRATEGY_FILE
+# Export model name so Python scripts can access it
+export MOCU_MODEL_NAME=$MODEL_NAME
 
-echo -e "${GREEN}✓${NC} Model path configured in $STRATEGY_FILE"
+echo -e "${GREEN}✓${NC} Model name set: $MODEL_NAME (via environment variable)"
 
 # Step 4: Run experiments
 echo ""
