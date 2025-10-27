@@ -81,7 +81,14 @@ fi
 eval $CMD
 cd ..
 
-echo -e "${GREEN}✓${NC} Dataset generated: data/${TRAIN_SIZE}_${N}o_train.pth"
+# Find the actual training file created (may have fewer samples than requested)
+ACTUAL_TRAIN_FILE=$(ls data/*_${N}o_train.pth 2>/dev/null | tail -1)
+if [ -z "$ACTUAL_TRAIN_FILE" ]; then
+    echo -e "${RED}Error: Training file not found in data/!${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓${NC} Dataset generated: $ACTUAL_TRAIN_FILE"
 
 # Step 2: Train model
 echo ""
@@ -91,7 +98,7 @@ echo "  This may take 1-2 hours..."
 cd scripts
 python training.py \
     --name $MODEL_NAME \
-    --data_path ../data/${TRAIN_SIZE}_${N}o_train.pth \
+    --data_path ../$ACTUAL_TRAIN_FILE \
     --EPOCH $EPOCHS \
     --Constrain_weight $CONSTRAIN_WEIGHT
 cd ..

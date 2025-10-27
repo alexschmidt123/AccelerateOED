@@ -1,4 +1,11 @@
-from utils import *
+import sys
+from pathlib import Path
+
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
+from src.utils.utils import *
 import torch
 import torch.nn.functional as F
 from torch.nn import Sequential, Linear, ReLU, GRU
@@ -6,9 +13,7 @@ from torch_geometric.nn import NNConv, Set2Set
 from torch_geometric.data import Data, DataLoader
 import numpy as np
 import copy
-
 import argparse
-import sys
 import os
 
 
