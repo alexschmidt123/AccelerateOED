@@ -75,16 +75,10 @@ def getMPSequence(gpu, q, syncThresholds, isSynchronized, w, N, aLowerBoundIn, a
     device = torch.device("cuda:" + str(gpu))
     torch.cuda.set_device(gpu)
     model = Net().cuda(gpu)
-<<<<<<< HEAD
-    model.load_state_dict(torch.load('../models/fast_test/model.pth'))
-    model.eval()
-    statistics = torch.load('../models/fast_test/statistics.pth')
-=======
     # Model path will be auto-configured by run.sh based on config
     model.load_state_dict(torch.load('../models/MODEL_NAME/model.pth'))
     model.eval()
     statistics = torch.load('../models/MODEL_NAME/statistics.pth')
->>>>>>> 7015133d7bf0d4547d2310725e0e9f0a7eb1f995
     mean = statistics['mean']
     std = statistics['std']
 
