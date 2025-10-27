@@ -30,7 +30,11 @@ fi
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}MOCU-OED Experiment Workflow${NC}"
 echo -e "${GREEN}========================================${NC}"
-echo -e "Config: ${YELLOW}$CONFIG_FILE${NC}\n"
+echo -e "Config: ${YELLOW}$CONFIG_FILE${NC}"
+if [ -n "$N_GLOBAL_UPDATED" ]; then
+    echo -e "${BLUE}[Re-execution after N_global update]${NC}"
+fi
+echo ""
 
 # Parse YAML config file
 N=$(grep "^N:" $CONFIG_FILE | awk '{print $2}')
@@ -58,10 +62,20 @@ CUDA_FILE="src/core/mocu_cuda.py"
 CURRENT_N_GLOBAL=$(grep "#define N_global" $CUDA_FILE | awk '{print $3}')
 
 if [ "$CURRENT_N_GLOBAL" != "$N_GLOBAL" ]; then
-    echo -e "${YELLOW}Updating N_global from $CURRENT_N_GLOBAL to $N_GLOBAL${NC}"
-    sed -i.bak "s/#define N_global.*/#define N_global $N_GLOBAL/" $CUDA_FILE
-    echo -e "${YELLOW}⚠️  N_global updated. Please run this script again to reload Python.${NC}"
-    exit 0
+    # Only update if not already in a re-execution
+    if [ -z "$N_GLOBAL_UPDATED" ]; then
+        echo -e "${YELLOW}Updating N_global from $CURRENT_N_GLOBAL to $N_GLOBAL...${NC}"
+        sed -i.bak "s/#define N_global.*/#define N_global $N_GLOBAL/" $CUDA_FILE
+        echo -e "${GREEN}✓${NC} N_global updated successfully"
+        echo -e "${BLUE}Re-executing script to apply changes...${NC}"
+        echo ""
+        # Re-execute the script with updated N_global
+        export N_GLOBAL_UPDATED=1
+        exec bash "$0" "$@"
+    else
+        echo -e "${RED}Error: N_global mismatch after update. Please check $CUDA_FILE${NC}"
+        exit 1
+    fi
 else
     echo -e "${GREEN}✓${NC} N_global is correctly set to $N_GLOBAL"
 fi

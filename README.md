@@ -59,10 +59,10 @@ pip install -r requirements.txt
 ```
 AccelerateOED/
 ├── configs/                      # Configuration files
-│   ├── fast_config.yaml         # Fast test (~30 min)
-│   ├── N5_config.yaml           # 5-oscillator system
-│   ├── N7_config.yaml           # 7-oscillator system
-│   └── N9_config.yaml           # 9-oscillator system
+│   ├── fast_config.yaml         # 🚀 Component verification (3-5 min)
+│   ├── N5_config.yaml           # 5-oscillator system (5-10 hours)
+│   ├── N7_config.yaml           # 7-oscillator system (15-20 hours)
+│   └── N9_config.yaml           # 9-oscillator system (24-30 hours)
 ├── run.sh                       # Main automation script
 ├── scripts/
 │   ├── data_generation.py      # Generate & convert dataset
@@ -77,27 +77,34 @@ AccelerateOED/
 
 ## Quick Start
 
-### Fast Test (30 minutes)
+### Component Verification (3-5 minutes) ⚡
 
-Test if all components work:
+**Quickly test if all components work** (minimal data, NOT for actual experiments):
 
 ```bash
 bash run.sh configs/fast_config.yaml
 ```
 
-### Full Experiment
+| Step | Time | What it does |
+|------|------|--------------|
+| Data Generation | ~1 min | 100 samples (50 Type1 + 50 Type2) |
+| Training | ~1 min | 10 epochs on 80 samples |
+| Experiments | ~2 min | 1 simulation, 3 iterations, 2 methods |
+| Visualization | ~5 sec | Generate plots |
 
-Run complete experiment:
+### Full Experiments
+
+Run complete experiments (for research):
 
 ```bash
-# For N=5 oscillators
+# For N=5 oscillators (~5-10 hours)
 bash run.sh configs/N5_config.yaml
 
-# For N=7 oscillators
+# For N=7 oscillators (~15-20 hours)
 bash run.sh configs/N7_config.yaml
 
-# For N=9 oscillators
+# For N=9 oscillators (~24-30 hours)
 bash run.sh configs/N9_config.yaml
 ```
 
-**Note:** On first run with a new config, the script automatically updates `N_global` in the CUDA code to match your system size (e.g., N=5 → N_global=6). The script will exit after this update. Simply run the same command again to continue with data generation and training.
+**Note:** The script automatically updates `N_global` in the CUDA code to match your system size (e.g., N=5 → N_global=6) and continues execution seamlessly.

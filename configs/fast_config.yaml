@@ -1,38 +1,36 @@
-# Fast configuration for quick testing
-# This config uses minimal parameters to test if all components work
-# Estimated time: ~30 minutes total (vs 5-30 hours for full configs)
+# SUPER FAST configuration for component verification
+# This config uses MINIMAL parameters just to verify all components work
+# Estimated time: ~3-5 minutes total (vs 30 min for fast, 5-30 hours for full)
+# ⚠️ NOT for actual experiments - only for testing!
 
 # System parameters
 N: 5
 N_global: 6  # N + 1 for CUDA kernel
 
-# Dataset generation (reduced for speed)
+# Dataset generation (MINIMAL for quick verification)
 dataset:
-  samples_per_type: 1000   # Reduced from 37500 (total = 2000 samples)
-  train_size: 1800         # Reduced from 70000
-  K_max: 5120              # Reduced from 20480 (fewer Monte Carlo samples)
+  samples_per_type: 50     # Minimal: just 100 total samples
+  train_size: 80           # Minimal: 80 train, 20 test
+  K_max: 1024              # Minimal: 1024 Monte Carlo samples (vs 20480 full)
   save_json: false
 
-# Training parameters (reduced for speed)
+# Training parameters (MINIMAL for quick verification)
 training:
   model_name: "fast_test"
-  epochs: 50               # Reduced from 400
+  epochs: 10               # Minimal: just verify training works
   constrain_weight: 0.0001
-  batch_size: 128
+  batch_size: 32           # Small batch for small dataset
   learning_rate: 0.001
 
-# Experiment parameters (minimal testing)
+# Experiment parameters (MINIMAL for quick verification)
 experiment:
-  num_simulations: 2       # Reduced from 10
-  update_count: 5          # Reduced from 10
-  it_idx: 5                # Reduced from 10
-  K_max: 5120              # Reduced from 20480
+  num_simulations: 1       # Single run only
+  update_count: 3          # Just 3 iterations
+  it_idx: 3                # Minimal iterations
+  K_max: 1024              # Match dataset K_max
   methods:
-    - "iMP"                # Keep best method
-    - "MP"                 # Keep fast method
-    # - "ODE"              # Skip - very slow!
-    - "ENTROPY"            # Keep for comparison
-    - "RANDOM"             # Keep baseline
+    - "iMP"                # Best method
+    - "RANDOM"             # Baseline (fastest)
 
 # Paths (relative to project root)
 paths:
