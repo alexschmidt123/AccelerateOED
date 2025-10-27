@@ -16,7 +16,7 @@ def plotCurves(train_MSE, train_rank, test_MSE, EPOCH, name):
     plt.ylabel('Mean Square Error')
     plt.legend()
     name = name.split('.')[0]
-    plt.savefig( '../Experiment/' + name + '/curve.png')
+    plt.savefig( '../models/' + name + '/curve.png')
 
     plt.clf()
 
@@ -26,7 +26,7 @@ def plotCurves(train_MSE, train_rank, test_MSE, EPOCH, name):
     plt.xlabel('epoch')
     plt.ylabel('Mean Square Error')
     plt.legend()
-    plt.savefig('../Experiment/' + name + '/curve2.png')
+    plt.savefig('../models/' + name + '/curve2.png')
 
 def savePrediction(data, prediction, std, mean, name):
     result = np.zeros([len(data.y), 2])
@@ -38,7 +38,7 @@ def savePrediction(data, prediction, std, mean, name):
     df = pd.DataFrame(result)
 
     # Fix for newer pandas versions
-    with pd.ExcelWriter('../Experiment/' + name + '/Prediction.xlsx', engine='openpyxl') as writer:
+    with pd.ExcelWriter('../models/' + name + '/Prediction.xlsx', engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='page_1', float_format='%.9f')
 
 

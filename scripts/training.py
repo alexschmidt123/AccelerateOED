@@ -170,8 +170,10 @@ def main():
 
                 train_MSE[epoch] = (sum(train_MSE_step) / len(train_MSE_step))
                 train_rank[epoch] = (sum(train_rank_step) / len(train_rank_step))
-                print('epoch %d learning rate %f training MSE loss: %f' % (epoch, lr, train_MSE[epoch]))
-                print('epoch %d learning rate %f training rank loss: %f' % (epoch, lr, train_rank[epoch]))
+                # Print progress every 10 epochs or at the end
+                if (epoch + 1) % 10 == 0 or epoch == EPOCH - 1:
+                    print('Epoch %d/%d | LR: %.6f | Train MSE: %.6f | Train Rank: %.6f' % 
+                          (epoch + 1, EPOCH, lr, train_MSE[epoch], train_rank[epoch]))
 
             # test
             model.eval()
@@ -188,11 +190,14 @@ def main():
                     prediction = model(data).unsqueeze(dim=1)
                 error += (prediction * std - data.y * std).square().sum().item()  # MSE
             loss = error / len(test_loader.dataset)
-            print('epoch %d test MSE: %f' % (epoch, loss))
-            # print('std:%f, mean:%f' % (std, mean))
             test_MSE[epoch] = loss
+            # Print test result every 10 epochs or at the end
+            if (epoch + 1) % 10 == 0 or epoch == EPOCH - 1:
+                print('         | Test MSE: %.6f' % loss)
             if epoch > 5 and loss < min(test_MSE[0:epoch]):
                 torch.save(model.state_dict(), '../models/' + args.name + '/model.pth')
+                if (epoch + 1) % 10 != 0:
+                    print('         | Test MSE: %.6f (best, saved)' % loss)
 
     # plot and save
     plotCurves(train_MSE, train_rank, test_MSE, EPOCH, args.name)

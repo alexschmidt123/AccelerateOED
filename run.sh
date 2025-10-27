@@ -68,27 +68,36 @@ fi
 
 # Step 1: Generate dataset
 echo ""
-echo -e "${GREEN}[Step 1/4]${NC} Generating dataset..."
-echo "  This may take 3-5 hours..."
+echo -e "${GREEN}[Step 1/4]${NC} Checking dataset..."
 
-cd scripts
-
-CMD="python data_generation.py --N $N --samples_per_type $SAMPLES --train_size $TRAIN_SIZE --K_max $K_MAX"
-if [ "$SAVE_JSON" = "true" ]; then
-    CMD="$CMD --save_json"
-fi
-
-eval $CMD
-cd ..
-
-# Find the actual training file created (may have fewer samples than requested)
+# Check if dataset already exists
 ACTUAL_TRAIN_FILE=$(ls data/*_${N}o_train.pth 2>/dev/null | tail -1)
-if [ -z "$ACTUAL_TRAIN_FILE" ]; then
-    echo -e "${RED}Error: Training file not found in data/!${NC}"
-    exit 1
-fi
 
-echo -e "${GREEN}✓${NC} Dataset generated: $ACTUAL_TRAIN_FILE"
+if [ -n "$ACTUAL_TRAIN_FILE" ]; then
+    echo -e "${GREEN}✓${NC} Dataset already exists: $ACTUAL_TRAIN_FILE"
+    echo "  Skipping data generation..."
+else
+    echo "  Generating dataset (this may take time)..."
+    
+    cd scripts
+    
+    CMD="python data_generation.py --N $N --samples_per_type $SAMPLES --train_size $TRAIN_SIZE --K_max $K_MAX"
+    if [ "$SAVE_JSON" = "true" ]; then
+        CMD="$CMD --save_json"
+    fi
+    
+    eval $CMD
+    cd ..
+    
+    # Find the actual training file created
+    ACTUAL_TRAIN_FILE=$(ls data/*_${N}o_train.pth 2>/dev/null | tail -1)
+    if [ -z "$ACTUAL_TRAIN_FILE" ]; then
+        echo -e "${RED}Error: Training file not found in data/!${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✓${NC} Dataset generated: $ACTUAL_TRAIN_FILE"
+fi
 
 # Step 2: Train model
 echo ""
