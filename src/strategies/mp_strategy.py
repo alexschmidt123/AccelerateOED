@@ -75,9 +75,9 @@ def getMPSequence(gpu, q, syncThresholds, isSynchronized, w, N, aLowerBoundIn, a
     device = torch.device("cuda:" + str(gpu))
     torch.cuda.set_device(gpu)
     model = Net().cuda(gpu)
-    model.load_state_dict(torch.load('../Experiment/cons5/model.pth'))
+    model.load_state_dict(torch.load('../models/fast_test/model.pth'))
     model.eval()
-    statistics = torch.load('../Experiment/cons5/statistics.pth')
+    statistics = torch.load('../models/fast_test/statistics.pth')
     mean = statistics['mean']
     std = statistics['std']
 
