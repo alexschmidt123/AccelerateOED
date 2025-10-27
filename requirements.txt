@@ -1,0 +1,40 @@
+# Core Scientific Computing
+numpy==2.2.6
+scipy==1.15.3
+pandas==2.3.2
+matplotlib==3.10.6
+
+# Deep Learning - PyTorch (CUDA 12.1)
+# Install with: pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+
+# PyTorch Geometric and Extensions
+# Install with: pip install torch-geometric torch-scatter torch-sparse torch-cluster torch-spline-conv -f https://data.pyg.org/whl/torch-2.5.1+cu121.html
+torch-geometric==2.6.1
+torch-scatter==2.1.2
+torch-sparse==0.6.18
+torch-cluster==1.6.3
+torch-spline-conv==1.2.2
+
+# CUDA Acceleration
+# Requires CUDA Toolkit 12.1+ and build tools
+# Install with: pip install pycuda (after installing system dependencies)
+pycuda==2025.1.2
+pytools==2025.2.4
+
+# Data Processing
+openpyxl==3.1.5
+demjson3==3.0.6
+
+# Utilities
+tqdm==4.67.1
+requests==2.32.5
+pyyaml==6.0.1
+
+# Note: Before installing PyCUDA, ensure you have:
+# 1. CUDA Toolkit installed (conda install -c nvidia cuda-toolkit=12.1)
+# 2. Build tools: sudo apt-get install build-essential python3-dev libboost-python-dev libboost-thread-dev
+# 3. Verify nvcc is in PATH: nvcc --version
+

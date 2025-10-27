@@ -32,3 +32,6 @@ node_modules
 #vscode 
 .vscode
 .idea
+
+# Backup files from sed
+*.bak

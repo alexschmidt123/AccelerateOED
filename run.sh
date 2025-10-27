@@ -1,0 +1,153 @@
+#!/bin/bash
+# Main script to run complete MOCU-OED experiment workflow
+# Usage: bash run.sh configs/N5_config.yaml
+
+set -e  # Exit on error
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Check if config file is provided
+if [ $# -eq 0 ]; then
+    echo -e "${RED}Error: No configuration file provided${NC}"
+    echo "Usage: bash run.sh <config_file>"
+    echo "Example: bash run.sh configs/N5_config.yaml"
+    exit 1
+fi
+
+CONFIG_FILE=$1
+
+# Check if config file exists
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo -e "${RED}Error: Configuration file '$CONFIG_FILE' not found${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}MOCU-OED Experiment Workflow${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo -e "Config: ${YELLOW}$CONFIG_FILE${NC}\n"
+
+# Parse YAML config file
+N=$(grep "^N:" $CONFIG_FILE | awk '{print $2}')
+N_GLOBAL=$(grep "^N_global:" $CONFIG_FILE | awk '{print $2}')
+MODEL_NAME=$(grep "model_name:" $CONFIG_FILE | awk '{print $2}' | tr -d '"')
+SAMPLES=$(grep "samples_per_type:" $CONFIG_FILE | awk '{print $2}')
+TRAIN_SIZE=$(grep "train_size:" $CONFIG_FILE | awk '{print $2}')
+K_MAX=$(grep -A 3 "^dataset:" $CONFIG_FILE | grep "K_max:" | awk '{print $2}')
+EPOCHS=$(grep "epochs:" $CONFIG_FILE | awk '{print $2}')
+CONSTRAIN_WEIGHT=$(grep "constrain_weight:" $CONFIG_FILE | awk '{print $2}')
+SAVE_JSON=$(grep "save_json:" $CONFIG_FILE | awk '{print $2}')
+
+echo -e "${BLUE}Configuration:${NC}"
+echo "  System size (N): $N"
+echo "  N_global: $N_GLOBAL"
+echo "  Model name: $MODEL_NAME"
+echo "  Samples per type: $SAMPLES"
+echo "  Training set size: $TRAIN_SIZE"
+echo "  Epochs: $EPOCHS"
+echo ""
+
+# Step 0: Check and update N_global in CUDA code
+echo -e "${GREEN}[Step 0/4]${NC} Checking CUDA N_global configuration..."
+CUDA_FILE="src/core/mocu_cuda.py"
+CURRENT_N_GLOBAL=$(grep "#define N_global" $CUDA_FILE | awk '{print $3}')
+
+if [ "$CURRENT_N_GLOBAL" != "$N_GLOBAL" ]; then
+    echo -e "${YELLOW}Updating N_global from $CURRENT_N_GLOBAL to $N_GLOBAL${NC}"
+    sed -i.bak "s/#define N_global.*/#define N_global $N_GLOBAL/" $CUDA_FILE
+    echo -e "${YELLOW}⚠️  N_global updated. Please run this script again to reload Python.${NC}"
+    exit 0
+else
+    echo -e "${GREEN}✓${NC} N_global is correctly set to $N_GLOBAL"
+fi
+
+# Step 1: Generate dataset
+echo ""
+echo -e "${GREEN}[Step 1/4]${NC} Generating dataset..."
+echo "  This may take 3-5 hours..."
+
+cd scripts
+
+CMD="python data_generation.py --N $N --samples_per_type $SAMPLES --train_size $TRAIN_SIZE --K_max $K_MAX"
+if [ "$SAVE_JSON" = "true" ]; then
+    CMD="$CMD --save_json"
+fi
+
+eval $CMD
+cd ..
+
+echo -e "${GREEN}✓${NC} Dataset generated: data/${TRAIN_SIZE}_${N}o_train.pth"
+
+# Step 2: Train model
+echo ""
+echo -e "${GREEN}[Step 2/4]${NC} Training model..."
+echo "  This may take 1-2 hours..."
+
+cd scripts
+python training.py \
+    --name $MODEL_NAME \
+    --data_path ../data/${TRAIN_SIZE}_${N}o_train.pth \
+    --EPOCH $EPOCHS \
+    --Constrain_weight $CONSTRAIN_WEIGHT
+cd ..
+
+echo -e "${GREEN}✓${NC} Model trained: models/$MODEL_NAME/model.pth"
+
+# Step 3: Configure model path in strategy
+echo ""
+echo -e "${GREEN}[Step 3/4]${NC} Configuring model path..."
+
+STRATEGY_FILE="src/strategies/mp_strategy.py"
+sed -i.bak "s|torch.load('../models/.*/model.pth')|torch.load('../models/$MODEL_NAME/model.pth')|g" $STRATEGY_FILE
+sed -i.bak "s|torch.load('../models/.*/statistics.pth')|torch.load('../models/$MODEL_NAME/statistics.pth')|g" $STRATEGY_FILE
+# Also update Experiment paths if they exist
+sed -i.bak "s|torch.load('../Experiment/.*/model.pth')|torch.load('../models/$MODEL_NAME/model.pth')|g" $STRATEGY_FILE
+sed -i.bak "s|torch.load('../Experiment/.*/statistics.pth')|torch.load('../models/$MODEL_NAME/statistics.pth')|g" $STRATEGY_FILE
+
+echo -e "${GREEN}✓${NC} Model path configured in $STRATEGY_FILE"
+
+# Step 4: Run experiments
+echo ""
+echo -e "${GREEN}[Step 4/4]${NC} Running OED experiments..."
+echo "  Note: Edit scripts/evaluation.py if needed to set:"
+echo "    - N = $N (line 24)"
+echo "    - Methods to run (line 43)"
+echo ""
+
+cd scripts
+mkdir -p ../results
+python evaluation.py
+cd ..
+
+echo -e "${GREEN}✓${NC} Experiments complete: results/"
+
+# Step 5: Visualize results
+echo ""
+echo -e "${GREEN}[Step 5/4]${NC} Generating visualizations..."
+
+cd scripts
+python visualization.py
+cd ..
+
+echo -e "${GREEN}✓${NC} Plots generated: results/MOCU_${N}.png, results/timeComplexity_${N}.png"
+
+# Summary
+echo ""
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}✓ Workflow Complete!${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo ""
+echo -e "${BLUE}Output:${NC}"
+echo "  Dataset:  data/${TRAIN_SIZE}_${N}o_train.pth"
+echo "  Model:    models/$MODEL_NAME/model.pth"
+echo "  Results:  results/*_MOCU.txt"
+echo "  Plots:    results/MOCU_${N}.png"
+echo "            results/timeComplexity_${N}.png"
+echo ""
+echo -e "${GREEN}All done!${NC}"
+
