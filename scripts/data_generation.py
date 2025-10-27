@@ -262,22 +262,28 @@ def main():
     
     total_samples = len(pyg_data_list)
     
-    # Smart split: use 80/20 split, but respect train_size if possible
-    # For small datasets, use at least 20% for test
-    min_test_samples = max(int(total_samples * 0.2), 10)  # At least 20% or 10 samples for test
+    # Smart split that handles both small and large datasets
+    # For large datasets: keep old behavior (reserve 1000 for test)
+    # For small datasets: use 20% split
     
-    if total_samples < min_test_samples:
-        print(f"\n⚠️  Warning: Only {total_samples} samples generated!")
-        print(f"   This is too small for proper train/test split.")
-        print(f"   Consider increasing samples_per_type in config.")
-        # Use all as training for now
-        train_size = total_samples
-        test_size = 0
-    else:
-        # Calculate train_size
-        max_train = total_samples - min_test_samples
-        train_size = min(args.train_size, max_train)
+    if total_samples >= 2000:
+        # Large dataset: use original logic (reserve at least 1000 for test)
+        train_size = min(args.train_size, total_samples - 1000)
         test_size = total_samples - train_size
+    else:
+        # Small dataset: use percentage-based split
+        min_test_samples = max(int(total_samples * 0.2), 10)  # At least 20% or 10 samples
+        
+        if total_samples < min_test_samples:
+            print(f"\n⚠️  Warning: Only {total_samples} samples generated!")
+            print(f"   This is too small for proper train/test split.")
+            print(f"   Consider increasing samples_per_type in config.")
+            train_size = total_samples
+            test_size = 0
+        else:
+            max_train = total_samples - min_test_samples
+            train_size = min(args.train_size, max_train)
+            test_size = total_samples - train_size
     
     train_data = pyg_data_list[:train_size]
     test_data = pyg_data_list[train_size:] if test_size > 0 else []
