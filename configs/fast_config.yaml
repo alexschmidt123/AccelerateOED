@@ -9,8 +9,8 @@ N_global: 6  # N + 1 for CUDA kernel
 
 # Dataset generation (MINIMAL for quick verification)
 dataset:
-  samples_per_type: 50     # Minimal: just 100 total samples
-  train_size: 80           # Minimal: 80 train, 20 test
+  samples_per_type: 150    # Generate 300 total (expect ~150 valid after sync filtering)
+  train_size: 100          # 100 train samples
   K_max: 1024              # Minimal: 1024 Monte Carlo samples (vs 20480 full)
   save_json: false
 

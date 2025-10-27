@@ -87,8 +87,8 @@ bash run.sh configs/fast_config.yaml
 
 | Step | Time | What it does |
 |------|------|--------------|
-| Data Generation | ~1 min | 100 samples (50 Type1 + 50 Type2) |
-| Training | ~1 min | 10 epochs on 80 samples |
+| Data Generation | ~2 min | 300 samples → ~150 valid (after sync filtering) |
+| Training | ~1 min | 10 epochs on ~100 samples |
 | Experiments | ~2 min | 1 simulation, 3 iterations, 2 methods |
 | Visualization | ~5 sec | Generate plots |
 
