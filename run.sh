@@ -133,11 +133,9 @@ echo ""
 echo -e "${GREEN}[Step 3/4]${NC} Configuring model path..."
 
 STRATEGY_FILE="src/strategies/mp_strategy.py"
-sed -i.bak "s|torch.load('../models/.*/model.pth')|torch.load('../models/$MODEL_NAME/model.pth')|g" $STRATEGY_FILE
-sed -i.bak "s|torch.load('../models/.*/statistics.pth')|torch.load('../models/$MODEL_NAME/statistics.pth')|g" $STRATEGY_FILE
-# Also update Experiment paths if they exist
-sed -i.bak "s|torch.load('../Experiment/.*/model.pth')|torch.load('../models/$MODEL_NAME/model.pth')|g" $STRATEGY_FILE
-sed -i.bak "s|torch.load('../Experiment/.*/statistics.pth')|torch.load('../models/$MODEL_NAME/statistics.pth')|g" $STRATEGY_FILE
+# Replace any model path with the current model name (works on re-runs too)
+sed -i.bak "s|torch\.load('../models/[^/']*/model\.pth')|torch.load('../models/$MODEL_NAME/model.pth')|g" $STRATEGY_FILE
+sed -i.bak "s|torch\.load('../models/[^/']*/statistics\.pth')|torch.load('../models/$MODEL_NAME/statistics.pth')|g" $STRATEGY_FILE
 
 echo -e "${GREEN}✓${NC} Model path configured in $STRATEGY_FILE"
 
