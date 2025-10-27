@@ -4,10 +4,10 @@ import json
 import random
 from torch_geometric.data import Data
 
-with open('../Dataset/5o_type1.json', 'r') as fileObject:
+with open('../data/5o_type1.json', 'r') as fileObject:
     data2 = json.load(fileObject)
 
-with open('../Dataset/5o_type2.json', 'r') as fileObject:
+with open('../data/5o_type2.json', 'r') as fileObject:
     data1 = json.load(fileObject)
 
 data = data1 + data2
@@ -46,5 +46,5 @@ for i in range(len(data)):
 train = data_list[0:70000]
 test = data_list[70000:75000]
 
-torch.save(train, '../Dataset/70000_5o_train.pth')
-torch.save(test, '../Dataset/5000_5o_test.pth')
+torch.save(train, '../data/70000_5o_train.pth')
+torch.save(test, '../data/5000_5o_test.pth')

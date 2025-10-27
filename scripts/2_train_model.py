@@ -85,7 +85,7 @@ def loadData(test_only, data_path, pretrain, name):
     if test_only:
         model_paths = pretrain.split('+')
         pretrain = model_paths[0]
-        statistics = torch.load('../Experiment/' + pretrain + '/statistics.pth')
+        statistics = torch.load('../models/' + pretrain + '/statistics.pth')
         mean = statistics['mean']
         std = statistics['std']
         for d in data_list:
@@ -103,7 +103,7 @@ def loadData(test_only, data_path, pretrain, name):
         data_test = data_list[int(0.96 * len(data_list)):len(data_list)]
         train_loader = DataLoader(data_train, batch_size=128, shuffle=True)
         test_loader = DataLoader(data_test, batch_size=128, shuffle=False)
-        torch.save({'mean': mean, 'std': std}, '../Experiment/' + name + '/statistics.pth')
+        torch.save({'mean': mean, 'std': std}, '../models/' + name + '/statistics.pth')
 
     return train_loader, test_loader, [std, mean]
 
@@ -115,8 +115,8 @@ def main():
     EPOCH = args.EPOCH if not args.test_only else 1
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    if not os.path.exists('../Experiment/' + args.name):
-        os.makedirs('../Experiment/' + args.name)
+    if not os.path.exists('../models/' + args.name):
+        os.makedirs('../models/' + args.name)
     train_loader, test_loader, [std, mean] = loadData(args.test_only, args.data_path, args.pretrain, args.name)
     print('Making Model...')
     with torch.backends.cudnn.flags(enabled=False):
@@ -128,11 +128,11 @@ def main():
                 models = []
                 for model_path in model_paths:
                     m = Net().cuda()
-                    m.load_state_dict(torch.load('../Experiment/' + model_path + '/model.pth'))
+                    m.load_state_dict(torch.load('../models' + model_path + '/model.pth'))
                     models.append(m)
             else:
                 # Load pretrained weights into the model
-                model.load_state_dict(torch.load('../Experiment/' + args.pretrain + '/model.pth'))
+                model.load_state_dict(torch.load('../models' + args.pretrain + '/model.pth'))
 
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
@@ -187,7 +187,7 @@ def main():
             # print('std:%f, mean:%f' % (std, mean))
             test_MSE[epoch] = loss
             if epoch > 5 and loss < min(test_MSE[0:epoch]):
-                torch.save(model.state_dict(), '../Experiment/' + args.name + '/model.pth')
+                torch.save(model.state_dict(), '../models/' + args.name + '/model.pth')
 
     # plot and save
     plotCurves(train_MSE, train_rank, test_MSE, EPOCH, args.name)

@@ -7,7 +7,7 @@ in coupled oscillator systems.
 
 import time
 import numpy as np
-from MOCU import *
+from core.mocu_cuda import *
 
 def findMOCUSequence(syncThresholds, isSynchronized, MOCUInitial, K_max, w, N, h , MVirtual, MReal, TVirtual, TReal, aLowerBoundIn, aUpperBoundIn, it_idx, update_cnt, iterative = True):
 

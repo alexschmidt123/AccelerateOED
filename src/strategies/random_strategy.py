@@ -8,7 +8,7 @@ in coupled oscillator systems.
 import time
 import numpy as np
 import random
-from MOCU import *
+from core.mocu_cuda import *
 
 def findRandomSequence(save_f_inv, D_save, init_MOCU_val, K_max, w, N, h , M, T,
                   a_lower_bound_update, a_upper_bound_update, it_idx, update_cnt):

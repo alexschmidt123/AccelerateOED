@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 update_cnt = 10
 
 listMethods = ['iNN', 'NN', 'iODE', 'ODE', 'ENTROPY', 'RANDOM']
-resultFolder = './resultsOnLambda_100/'
+resultFolder = '../results/resultsOnLambda100/'
 
 drawIndex = 0
 iNN = np.loadtxt(resultFolder + listMethods[drawIndex] + '_MOCU.txt', delimiter = "\t")

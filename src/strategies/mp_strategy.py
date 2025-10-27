@@ -6,7 +6,7 @@ in coupled oscillator systems.
 """
 
 import time
-from MOCU import *
+from core.mocu_cuda import *
 import torch
 import numpy as np
 from torch.nn import Sequential, Linear, ReLU, GRU

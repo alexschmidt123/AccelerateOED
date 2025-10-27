@@ -9,12 +9,11 @@ import time
 
 sys.path.append("./src")
 
-from findMOCUSequence import *
-from findMPSequence import *
-from findEntropySequence import *
-from findRandomSequence import *
-from determineSyncTwo import *
-from determineSyncN import *
+from src.strategies.entropy_strategy import *
+from src.strategies.random_strategy import *
+from src.strategies.mocu_strategy import *
+from src.strategies.mp_strategy import *
+from core.sync_detection import *
 import torch.multiprocessing as mp
 
 import numpy as np
