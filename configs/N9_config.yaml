@@ -1,4 +1,6 @@
 # Configuration for 9-oscillator system
+# This config file (N9_config.yaml) defines the experiment configuration
+# The 'model_name' below is the identifier for where the trained model will be saved
 
 # System parameters
 N: 9
@@ -13,7 +15,7 @@ dataset:
 
 # Training parameters
 training:
-  model_name: "cons9"
+  model_name: "cons9"  # Identifier for trained model directory (models/cons9/)
   epochs: 400
   constrain_weight: 0.0001
   batch_size: 128

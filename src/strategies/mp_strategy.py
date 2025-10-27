@@ -71,22 +71,24 @@ class Net(torch.nn.Module):
 
 def getMPSequence(gpu, q, syncThresholds, isSynchronized, w, N, aLowerBoundIn, aUpperBoundIn,
                   update_cnt, iterative=True):
-    # load model
+    # Load the trained model
+    # Note: Configuration files (N5_config.yaml, N7_config.yaml, etc.) specify the 
+    # 'model_name' field which identifies the trained model directory (e.g., 'cons5', 'cons7')
     print('loading model')
     device = torch.device("cuda:" + str(gpu))
     torch.cuda.set_device(gpu)
     model = Net().cuda(gpu)
     
-    # Read model name from environment variable (must be set by run.sh)
-    model_name = os.environ.get('MOCU_MODEL_NAME')
-    if not model_name:
+    # Read trained model identifier from environment variable (set by run.sh from config file)
+    trained_model_name = os.environ.get('MOCU_MODEL_NAME')
+    if not trained_model_name:
         raise RuntimeError(
             "MOCU_MODEL_NAME environment variable not set!\n"
             "Please run experiments using: bash run.sh configs/<config_file>.yaml"
         )
     
-    model_path = f'../models/{model_name}/model.pth'
-    stats_path = f'../models/{model_name}/statistics.pth'
+    model_path = f'../models/{trained_model_name}/model.pth'
+    stats_path = f'../models/{trained_model_name}/statistics.pth'
     
     model.load_state_dict(torch.load(model_path))
     model.eval()

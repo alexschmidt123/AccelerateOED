@@ -30,16 +30,18 @@ fi
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}MOCU-OED Experiment Workflow${NC}"
 echo -e "${GREEN}========================================${NC}"
-echo -e "Config: ${YELLOW}$CONFIG_FILE${NC}"
+echo -e "Config file: ${YELLOW}$CONFIG_FILE${NC}"
 if [ -n "$N_GLOBAL_UPDATED" ]; then
     echo -e "${BLUE}[Re-execution after N_global update]${NC}"
 fi
 echo ""
 
 # Parse YAML config file
+# Note: Config files (N5_config.yaml, N7_config.yaml, etc.) are experiment configurations
+# The 'model_name' field specifies the identifier for the trained model (e.g., cons5, cons7)
 N=$(grep "^N:" $CONFIG_FILE | awk '{print $2}')
 N_GLOBAL=$(grep "^N_global:" $CONFIG_FILE | awk '{print $2}')
-MODEL_NAME=$(grep "model_name:" $CONFIG_FILE | awk '{print $2}' | tr -d '"')
+TRAINED_MODEL_NAME=$(grep "model_name:" $CONFIG_FILE | awk '{print $2}' | tr -d '"')
 SAMPLES=$(grep "samples_per_type:" $CONFIG_FILE | awk '{print $2}')
 TRAIN_SIZE=$(grep "train_size:" $CONFIG_FILE | awk '{print $2}')
 K_MAX=$(grep -A 3 "^dataset:" $CONFIG_FILE | grep "K_max:" | awk '{print $2}')
@@ -47,10 +49,10 @@ EPOCHS=$(grep "epochs:" $CONFIG_FILE | awk '{print $2}')
 CONSTRAIN_WEIGHT=$(grep "constrain_weight:" $CONFIG_FILE | awk '{print $2}')
 SAVE_JSON=$(grep "save_json:" $CONFIG_FILE | awk '{print $2}')
 
-echo -e "${BLUE}Configuration:${NC}"
+echo -e "${BLUE}Experiment Configuration:${NC}"
 echo "  System size (N): $N"
 echo "  N_global: $N_GLOBAL"
-echo "  Model name: $MODEL_NAME"
+echo "  Trained model identifier: $TRAINED_MODEL_NAME"
 echo "  Samples per type: $SAMPLES"
 echo "  Training set size: $TRAIN_SIZE"
 echo "  Epochs: $EPOCHS"
@@ -120,22 +122,22 @@ echo "  This may take 1-2 hours..."
 
 cd scripts
 python training.py \
-    --name $MODEL_NAME \
+    --name $TRAINED_MODEL_NAME \
     --data_path ../$ACTUAL_TRAIN_FILE \
     --EPOCH $EPOCHS \
     --Constrain_weight $CONSTRAIN_WEIGHT
 cd ..
 
-echo -e "${GREEN}✓${NC} Model trained: models/$MODEL_NAME/model.pth"
+echo -e "${GREEN}✓${NC} Model trained: models/$TRAINED_MODEL_NAME/model.pth"
 
-# Step 3: Set model name as environment variable
+# Step 3: Export trained model identifier for evaluation scripts
 echo ""
-echo -e "${GREEN}[Step 3/4]${NC} Configuring model path..."
+echo -e "${GREEN}[Step 3/4]${NC} Configuring trained model path..."
 
-# Export model name so Python scripts can access it
-export MOCU_MODEL_NAME=$MODEL_NAME
+# Export trained model identifier so Python evaluation scripts can load the correct model
+export MOCU_MODEL_NAME=$TRAINED_MODEL_NAME
 
-echo -e "${GREEN}✓${NC} Model name set: $MODEL_NAME (via environment variable)"
+echo -e "${GREEN}✓${NC} Trained model identifier: $TRAINED_MODEL_NAME (via MOCU_MODEL_NAME env var)"
 
 # Step 4: Run experiments
 echo ""
@@ -170,7 +172,7 @@ echo -e "${GREEN}========================================${NC}"
 echo ""
 echo -e "${BLUE}Output:${NC}"
 echo "  Dataset:  data/${TRAIN_SIZE}_${N}o_train.pth"
-echo "  Model:    models/$MODEL_NAME/model.pth"
+echo "  Model:    models/$TRAINED_MODEL_NAME/model.pth"
 echo "  Results:  results/*_MOCU.txt"
 echo "  Plots:    results/MOCU_${N}.png"
 echo "            results/timeComplexity_${N}.png"
